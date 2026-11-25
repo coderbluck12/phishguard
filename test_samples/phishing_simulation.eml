@@ -1,0 +1,35 @@
+From: "PayPal Account Security" <support-security-alert@paypal-security-update-center.com>
+To: victim.user@example.com
+Subject: URGENT: Your PayPal Account Has Been Suspended - Action Required
+Date: Sat, 21 Nov 2026 14:15:30 +0000
+Message-ID: <20261121141530.98765.fake@paypal-security-update-center.com>
+Return-Path: <bounce-daemon@attacker-mailhost.net>
+Reply-To: security-recovery-agent@mail-drop-attacker.com
+Received: from attacker-mailhost.net (unknown [198.51.100.42])
+    by mailserver.example.com with ESMTP id ABC12345
+    for <victim.user@example.com>; Sat, 21 Nov 2026 14:15:32 +0000
+Received-SPF: fail (mailserver.example.com: domain of paypal-security-update-center.com does not designate 198.51.100.42 as permitted sender)
+Authentication-Results: mailserver.example.com;
+    spf=fail (sender IP is 198.51.100.42) smtp.mailfrom=bounce-daemon@attacker-mailhost.net;
+    dkim=fail header.d=paypal-security-update-center.com;
+    dmarc=fail (p=reject) header.from=paypal.com
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>PayPal Security Alert</title>
+</head>
+<body>
+<h2>Your PayPal Account Has Been Temporarily Suspended</h2>
+<p>Dear Valued Customer,</p>
+<p>We detected an unauthorized login attempt from an unrecognized IP address in Moscow, Russia. To protect your financial security, your account access has been restricted.</p>
+<p>You must confirm your identity within 24 hours or your balance will be permanently frozen.</p>
+<p>
+    <!-- Deceptive anchor: displays legitimate link but routes to phishing harvest endpoint -->
+    <a href="http://login-appleid-verify.com/login?token=x938fka92jfk">https://www.paypal.com/security-verification</a>
+</p>
+<p>Sincerely,<br/>PayPal Fraud Prevention Division</p>
+</body>
+</html>

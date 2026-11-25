@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.joblib.bak
+.pytest_cache/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Captured temp screenshots & logs
+frontend/screenshots/capture_*.png
+test_shot.png
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

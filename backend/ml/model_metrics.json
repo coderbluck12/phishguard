@@ -1,0 +1,40 @@
+{
+  "model_name": "PhishGuard Dual-Ensemble (Balanced 1,300+ Corpus)",
+  "features_count": 18,
+  "feature_names": [
+    "url_length",
+    "domain_length",
+    "is_ip_host",
+    "count_dots",
+    "count_hyphens",
+    "count_at_symbols",
+    "count_question_marks",
+    "count_percentage",
+    "count_equal_signs",
+    "count_slash",
+    "count_digits",
+    "digit_ratio",
+    "subdomain_count",
+    "is_https",
+    "url_entropy",
+    "domain_entropy",
+    "count_suspicious_tokens",
+    "has_punycode"
+  ],
+  "total_dataset_size": 1354,
+  "training_samples": 1083,
+  "test_samples": 271,
+  "accuracy": 99.26,
+  "precision": 98.59,
+  "recall": 98.59,
+  "f1_score": 98.59,
+  "roc_auc": 99.95,
+  "cross_val_accuracy_mean": 98.08,
+  "cross_val_std": 0.54,
+  "confusion_matrix": {
+    "true_negatives": 199,
+    "false_positives": 1,
+    "false_negatives": 1,
+    "true_positives": 70
+  }
+}

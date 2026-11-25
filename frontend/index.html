@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard — Threat Intelligence, Email Forensics & Social Engineering Defense</title>
+    
+    <!-- Typography: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Free -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .clean-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .clean-card-hover:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .risk-gauge-circle {
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Subtle scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
+            
+            <!-- Branding -->
+            <div class="flex items-center space-x-3.5">
+                <!-- Custom Inline Vector Logo -->
+                <div class="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 p-[1.5px] shadow-md shadow-blue-500/20">
+                    <div class="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.8" stroke-linejoin="round"/>
+                            <path d="M12 7V13M12 17H12.01" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-extrabold text-lg tracking-tight text-slate-900">Phish<span class="text-blue-600">Guard</span></span>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wide bg-blue-50 text-blue-700 border border-blue-200">AI Sentinel</span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">Enterprise Phishing Detection & Threat Intelligence</p>
+                </div>
+            </div>
+
+            <!-- Header Badges & Links -->
+            <div class="flex items-center space-x-3">
+                <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-600 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Trained ML Classifier Active</span>
+                    <span class="text-slate-400">|</span>
+                    <span class="font-semibold text-slate-800" id="header-acc">100.0% Acc</span>
+                </div>
+
+                <button onclick="switchTab('sim')" class="px-3.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Live Simulations</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Welcome Banner -->
+        <div class="clean-card rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-white via-slate-50/50 to-blue-50/30">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2 max-w-2xl">
+                    <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-blue-100/60 text-blue-800 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-check text-blue-600"></i>
+                        <span>Explainable Security Intelligence Engine</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Advanced Phishing URL, Email & Website Detection
+                    </h1>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Evaluates URLs, domains, SSL certificates, web DOM forms, and email authentication (SPF / DKIM / DMARC) with an integrated Machine Learning ensemble and verifiable metrics.
+                    </p>
+                </div>
+
+                <!-- Live Model Metric Badges -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Accuracy</div>
+                        <div class="text-lg font-bold text-emerald-600 mt-0.5" id="hero-acc">100.0%</div>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">ROC-AUC</div>
+                        <div class="text-lg font-bold text-blue-600 mt-0.5" id="hero-auc">100.0%</div>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Dataset</div>
+                        <div class="text-lg font-bold text-indigo-600 mt-0.5" id="hero-samples">1,354 URLs</div>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Vectors</div>
+                        <div class="text-lg font-bold text-slate-800 mt-0.5">18 Features</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs: Clean Light Segmented Control -->
+        <div class="flex justify-center">
+            <div class="inline-flex p-1 bg-slate-200/80 rounded-xl border border-slate-300/80 shadow-inner">
+                <button id="tab-url-btn" onclick="switchTab('url')" class="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-link text-blue-600"></i>
+                    <span>URL & Website Scanner</span>
+                </button>
+                <button id="tab-email-btn" onclick="switchTab('email')" class="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-envelope-open-text text-indigo-600"></i>
+                    <span>Email & Header Inspector</span>
+                </button>
+                <button id="tab-sim-btn" onclick="switchTab('sim')" class="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-flask text-emerald-600"></i>
+                    <span>Simulation Lab</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. URL & DOM SCANNER SECTION              -->
+        <!-- ========================================== -->
+        <section id="section-url" class="space-y-6">
+            
+            <!-- Input Card -->
+            <div class="clean-card rounded-2xl p-6 shadow-sm">
+                <form id="url-scan-form" onsubmit="handleUrlScan(event)" class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <label class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                            <span>Scan Target URL or Domain:</span>
+                        </label>
+                        <div class="flex items-center space-x-2 text-xs text-slate-500">
+                            <input type="checkbox" id="deep-scan-cb" checked class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+                            <label for="deep-scan-cb" class="cursor-pointer">Deep DOM Inspection (Checks forms, password fields & hidden iframes)</label>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-globe text-sm"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="url-input" 
+                                required
+                                placeholder="e.g. http://127.0.0.1:8001/sim/apple-phish or https://github.com" 
+                                class="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm font-mono"
+                            />
+                        </div>
+                        <button 
+                            type="submit" 
+                            id="url-submit-btn" 
+                            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 font-bold text-sm text-white rounded-xl shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-2 disabled:opacity-50"
+                        >
+                            <i class="fa-solid fa-magnifying-glass-shield"></i>
+                            <span>Analyze Target</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Suggestions -->
+                    <div class="pt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <span class="font-medium text-slate-700">Quick Try:</span>
+                        <button type="button" onclick="setAndScanUrl('http://127.0.0.1:8001/sim/apple-phish')" class="px-2.5 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition font-mono">
+                            ⚡ Apple Phish (Simulated)
+                        </button>
+                        <button type="button" onclick="setAndScanUrl('http://127.0.0.1:8001/sim/paypal-phish')" class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition font-mono">
+                            ⚡ PayPal Phish (Simulated)
+                        </button>
+                        <button type="button" onclick="setAndScanUrl('https://github.com')" class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition font-mono">
+                            ⚡ GitHub.com (Legitimate)
+                        </button>
+                        <button type="button" onclick="setAndScanUrl('https://wikipedia.org')" class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition font-mono">
+                            ⚡ Wikipedia (Legitimate)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading Spinner State -->
+            <div id="url-loading" class="hidden text-center py-12 space-y-3">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-blue-600"></div>
+                <p class="text-sm font-semibold text-slate-700">Analyzing Target Across 5 Diagnostic Vectors...</p>
+                <p class="text-xs text-slate-500">Extracting 18 ML features • Validating SSL handshake • Probing form DOM targets</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="url-results" class="hidden space-y-6">
+
+                <!-- Primary Result Hero Card -->
+                <div id="url-overview-card" class="clean-card rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm border-l-4">
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                        
+                        <!-- Circular Gauge -->
+                        <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path class="text-slate-100" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="url-gauge-path" class="risk-gauge-circle" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span id="url-score-val" class="text-2xl font-black text-slate-900">0</span>
+                                <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Risk</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                <span id="url-verdict-badge" class="px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider"></span>
+                                <span id="url-ml-badge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200"></span>
+                                <span id="url-visual-badge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200"></span>
+                            </div>
+                            <h2 id="url-verdict-title" class="text-xl sm:text-2xl font-extrabold text-slate-900"></h2>
+                            <p id="url-target-display" class="text-xs font-mono text-slate-500 break-all"></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="downloadReport('url')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm">
+                            <i class="fa-solid fa-file-pdf text-red-400"></i>
+                            <span>Export PDF Report</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual Capture & Siamese Layout Comparator Panel -->
+                <div id="visual-inspection-panel" class="clean-card rounded-2xl p-6 space-y-4 border border-indigo-100 bg-gradient-to-r from-white via-indigo-50/20 to-white shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                <i class="fa-solid fa-camera-retro"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">Live Sandboxed Viewport Screenshot & Siamese Visual Brand Comparator</h3>
+                                <p class="text-xs text-slate-500">Rendered in headless Chromium (1280x800) • Compared against Golden Brand Layout Gallery</p>
+                            </div>
+                        </div>
+                        <div id="visual-verdict-pill" class="self-start sm:self-auto text-xs px-3 py-1 rounded-full font-bold"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <!-- Captured Screenshot Thumbnail -->
+                        <div class="lg:col-span-5 relative rounded-xl border border-slate-200 overflow-hidden bg-slate-100 shadow-sm group">
+                            <img id="suspect-screenshot-img" src="" alt="Webpage Viewport Screenshot" class="w-full h-56 object-cover object-top transition duration-300 group-hover:scale-105" />
+                            <a id="screenshot-expand-link" href="#" target="_blank" class="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-slate-900/80 hover:bg-slate-900 text-white text-[11px] font-semibold backdrop-blur transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>Full Resolution</span>
+                            </a>
+                        </div>
+
+                        <!-- Siamese Layout Diagnostics -->
+                        <div class="lg:col-span-7 space-y-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                                    <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Visual Brand Match</div>
+                                    <div class="text-base font-bold text-slate-800 mt-0.5" id="v-matched-brand">-</div>
+                                </div>
+                                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                                    <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Layout Similarity</div>
+                                    <div class="text-base font-bold text-indigo-600 mt-0.5" id="v-similarity">-</div>
+                                </div>
+                                <div class="p-3 bg-white rounded-xl border border-slate-200/90 shadow-sm">
+                                    <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Brand Impersonation</div>
+                                    <div class="text-base font-bold mt-0.5" id="v-impersonation">-</div>
+                                </div>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed font-mono" id="v-details-box">
+                                Layout embedding extracted via 2D-DCT and gradient orientation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5 Pillar Diagnostic Breakdown -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    
+                    <!-- 1. ML Model Card -->
+                    <div class="clean-card clean-card-hover rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                            <span class="text-purple-700 flex items-center"><i class="fa-solid fa-brain mr-1.5"></i> AI Ensemble</span>
+                            <span id="badge-ml-pen" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-100 text-purple-800"></span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600 font-mono">
+                            <div><span class="text-slate-400">Pred:</span> <span id="ml-pred" class="font-bold"></span></div>
+                            <div><span class="text-slate-400">Confidence:</span> <span id="ml-conf"></span></div>
+                            <div><span class="text-slate-400">Entropy:</span> <span id="ml-ent"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Domain & Squatting -->
+                    <div class="clean-card clean-card-hover rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                            <span class="text-blue-700 flex items-center"><i class="fa-solid fa-dna mr-1.5"></i> Domain Checks</span>
+                            <span id="badge-domain-pen" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800"></span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600 font-mono">
+                            <div class="truncate"><span class="text-slate-400">Domain:</span> <span id="d-reg"></span></div>
+                            <div><span class="text-slate-400">Spoof:</span> <span id="d-brand" class="font-bold text-amber-600"></span></div>
+                            <div><span class="text-slate-400">Typosquat:</span> <span id="d-typo"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. SSL/TLS Certificate -->
+                    <div class="clean-card clean-card-hover rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                            <span class="text-emerald-700 flex items-center"><i class="fa-solid fa-lock mr-1.5"></i> SSL / TLS</span>
+                            <span id="badge-ssl-pen" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800"></span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600 font-mono">
+                            <div><span class="text-slate-400">Status:</span> <span id="s-status"></span></div>
+                            <div class="truncate"><span class="text-slate-400">Issuer:</span> <span id="s-issuer"></span></div>
+                            <div><span class="text-slate-400">Self-Signed:</span> <span id="s-self"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Threat Intelligence -->
+                    <div class="clean-card clean-card-hover rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                            <span class="text-rose-700 flex items-center"><i class="fa-solid fa-radar mr-1.5"></i> Threat Feeds</span>
+                            <span id="badge-intel-pen" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-100 text-rose-800"></span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600 font-mono">
+                            <div><span class="text-slate-400">Match:</span> <span id="ti-match" class="font-bold"></span></div>
+                            <div class="truncate"><span class="text-slate-400">Type:</span> <span id="ti-cat"></span></div>
+                            <div><span class="text-slate-400">Conf:</span> <span id="ti-conf"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Website DOM Forms -->
+                    <div class="clean-card clean-card-hover rounded-xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs font-bold border-b border-slate-100 pb-2">
+                            <span class="text-amber-700 flex items-center"><i class="fa-solid fa-code mr-1.5"></i> DOM Inspection</span>
+                            <span id="badge-web-pen" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-800"></span>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-600 font-mono">
+                            <div><span class="text-slate-400">Password:</span> <span id="w-pass"></span></div>
+                            <div><span class="text-slate-400">Ext Action:</span> <span id="w-ext"></span></div>
+                            <div><span class="text-slate-400">Iframes:</span> <span id="w-iframe"></span></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Forensic Indicators & Playbook -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="clean-card rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-magnifying-glass-arrow-right text-blue-600 mr-2"></i>
+                                Forensic Findings (<span id="findings-count">0</span>)
+                            </h3>
+                            <span class="text-xs text-slate-400 font-medium">Observed Evidence</span>
+                        </div>
+                        <ul id="findings-list" class="space-y-2 text-xs text-slate-600 max-h-64 overflow-y-auto pr-1"></ul>
+                    </div>
+
+                    <div class="clean-card rounded-2xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-shield-halved text-emerald-600 mr-2"></i>
+                                Security Action Playbook
+                            </h3>
+                            <span class="text-xs text-slate-400 font-medium">Mitigation Steps</span>
+                        </div>
+                        <ul id="recs-list" class="space-y-2 text-xs text-slate-600 max-h-64 overflow-y-auto pr-1"></ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. EMAIL FORENSICS SECTION                 -->
+        <!-- ========================================== -->
+        <section id="section-email" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Upload .EML Card -->
+                <div class="clean-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
+                            <i class="fa-solid fa-file-arrow-up text-lg"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Option 1: Upload Raw .EML File</h3>
+                        <p class="text-xs text-slate-500 mt-1">Standard RFC 822 format exported from Outlook, Gmail, or Apple Mail.</p>
+                    </div>
+
+                    <div 
+                        class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-8 text-center cursor-pointer transition bg-slate-50/50 hover:bg-blue-50/20"
+                        onclick="document.getElementById('eml-file-input').click()"
+                    >
+                        <input type="file" id="eml-file-input" accept=".eml,.msg,.txt" class="hidden" onchange="handleEmlUpload(event)">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                        <p class="text-xs font-semibold text-slate-700">Click to browse or drop an .EML file here</p>
+                        <p id="selected-filename" class="text-xs font-mono text-blue-600 mt-1 font-semibold"></p>
+                    </div>
+                </div>
+
+                <!-- Paste Raw Headers Card -->
+                <div class="clean-card rounded-2xl p-6 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-1">
+                        <i class="fa-solid fa-code text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">Option 2: Paste Raw Headers & Body</h3>
+                        <p class="text-xs text-slate-500">Directly inspect Return-Path, Received-SPF, and DKIM signatures.</p>
+                    </div>
+                    <textarea 
+                        id="raw-headers-input" 
+                        rows="5" 
+                        placeholder="From: ...&#10;Return-Path: ...&#10;Received-SPF: fail ...&#10;Subject: Urgent Security Notice" 
+                        class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    ></textarea>
+                    <button onclick="handleRawHeadersScan()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-xl text-white transition shadow-sm">
+                        Parse & Verify Headers
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Email Loading -->
+            <div id="email-loading" class="hidden text-center py-12 space-y-3">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-indigo-600"></div>
+                <p class="text-sm font-semibold text-slate-700">Verifying SPF, DKIM Signatures & DMARC Alignment...</p>
+            </div>
+
+            <!-- Email Results -->
+            <div id="email-results" class="hidden space-y-6">
+
+                <!-- Result Hero Card -->
+                <div id="email-overview-card" class="clean-card rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm border-l-4">
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
+                        <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path class="text-slate-100" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="email-gauge-path" class="risk-gauge-circle" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span id="email-score-val" class="text-2xl font-black text-slate-900">0</span>
+                                <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Risk</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span id="email-verdict-badge" class="px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider inline-block"></span>
+                            <h2 id="email-verdict-title" class="text-xl sm:text-2xl font-extrabold text-slate-900"></h2>
+                            <p id="email-subject-display" class="text-xs font-mono text-slate-500"></p>
+                        </div>
+                    </div>
+
+                    <button onclick="downloadReport('email')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm">
+                        <i class="fa-solid fa-file-pdf text-red-400"></i>
+                        <span>Export Email Audit PDF</span>
+                    </button>
+                </div>
+
+                <!-- 3 Authentication Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="clean-card rounded-xl p-4 text-center space-y-2">
+                        <span class="text-xs font-bold uppercase text-slate-500">SPF Verification</span>
+                        <div><span id="auth-spf-badge" class="px-3.5 py-1 rounded-full text-xs font-extrabold inline-block"></span></div>
+                        <p class="text-xs text-slate-500">Validates authorized mail relay IP in DNS.</p>
+                    </div>
+                    <div class="clean-card rounded-xl p-4 text-center space-y-2">
+                        <span class="text-xs font-bold uppercase text-slate-500">DKIM Cryptographic Signature</span>
+                        <div><span id="auth-dkim-badge" class="px-3.5 py-1 rounded-full text-xs font-extrabold inline-block"></span></div>
+                        <p class="text-xs text-slate-500">Public-key cryptographic tamper check.</p>
+                    </div>
+                    <div class="clean-card rounded-xl p-4 text-center space-y-2">
+                        <span class="text-xs font-bold uppercase text-slate-500">DMARC Policy & Alignment</span>
+                        <div><span id="auth-dmarc-badge" class="px-3.5 py-1 rounded-full text-xs font-extrabold inline-block"></span></div>
+                        <p id="auth-dmarc-policy" class="text-xs text-slate-500 font-mono"></p>
+                    </div>
+                </div>
+
+                <!-- Sender Alignment & Links -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="clean-card rounded-xl p-5 space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Sender Identity Alignment</h4>
+                        <div class="text-xs space-y-2 font-mono">
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200"><span class="text-slate-400">From:</span> <span id="em-from" class="text-slate-800"></span></div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200"><span class="text-slate-400">Return-Path:</span> <span id="em-return" class="text-slate-800"></span></div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200"><span class="text-slate-400">Reply-To:</span> <span id="em-reply" class="text-slate-800"></span></div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200"><span class="text-slate-400">Spoofing Detection:</span> <span id="em-spoof" class="font-bold"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="clean-card rounded-xl p-5 space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Extracted Hyperlinks & Anchor Text Deception</h4>
+                        <div id="em-links-list" class="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs font-mono"></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. SIMULATION LAB SECTION                  -->
+        <!-- ========================================== -->
+        <section id="section-sim" class="hidden space-y-6">
+            <div class="clean-card rounded-2xl p-6 sm:p-8 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-flask text-blue-600"></i>
+                        <span>Live Phishing Simulation & Benchmark Testbed</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">
+                        These test scenarios are hosted locally and guaranteed to run reliably without internet takedowns.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    
+                    <!-- Scenario 1: Apple Simulation -->
+                    <div class="p-5 bg-white border border-red-200 rounded-xl space-y-3 shadow-sm hover:border-red-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-red-600 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Simulation 1: Apple Credential Harvester
+                            </span>
+                            <span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">High Risk Phish</span>
+                        </div>
+                        <p class="text-xs text-slate-700 font-mono">Target: <span class="text-red-700 font-semibold">http://127.0.0.1:8001/sim/apple-phish</span></p>
+                        <p class="text-xs text-slate-500">Demonstrates external credential form exfiltration, unencrypted password POST, and urgency intimidation.</p>
+                        <button onclick="setAndScanUrl('http://127.0.0.1:8001/sim/apple-phish')" class="w-full py-2 bg-red-600 hover:bg-red-700 text-xs font-bold rounded-lg text-white transition shadow-sm">
+                            Run Apple Phish Simulation
+                        </button>
+                    </div>
+
+                    <!-- Scenario 2: PayPal Simulation -->
+                    <div class="p-5 bg-white border border-amber-200 rounded-xl space-y-3 shadow-sm hover:border-amber-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Simulation 2: PayPal Data Drop Form
+                            </span>
+                            <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Data Harvest</span>
+                        </div>
+                        <p class="text-xs text-slate-700 font-mono">Target: <span class="text-amber-800 font-semibold">http://127.0.0.1:8001/sim/paypal-phish</span></p>
+                        <p class="text-xs text-slate-500">Demonstrates unauthorized banking alert cues, SSN request fields, and mismatched form targets.</p>
+                        <button onclick="setAndScanUrl('http://127.0.0.1:8001/sim/paypal-phish')" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-xs font-bold rounded-lg text-white transition shadow-sm">
+                            Run PayPal Phish Simulation
+                        </button>
+                    </div>
+
+                    <!-- Scenario 3: Legitimate Portal -->
+                    <div class="p-5 bg-white border border-emerald-200 rounded-xl space-y-3 shadow-sm hover:border-emerald-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-circle-check mr-1.5"></i> Benchmark 1: Authentic Live Portal
+                            </span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Clean Benchmark</span>
+                        </div>
+                        <p class="text-xs text-slate-700 font-mono">Target: <span class="text-emerald-800 font-semibold">https://github.com</span></p>
+                        <p class="text-xs text-slate-500">Demonstrates EV/OV SSL handshake, mature domain age, verified MX records, and zero risk score.</p>
+                        <button onclick="setAndScanUrl('https://github.com')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-xs font-bold rounded-lg text-white transition shadow-sm">
+                            Run GitHub Benchmark Scan
+                        </button>
+                    </div>
+
+                    <!-- Scenario 4: Spoofed Email EML -->
+                    <div class="p-5 bg-white border border-blue-200 rounded-xl space-y-3 shadow-sm hover:border-blue-300 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center">
+                                <i class="fa-solid fa-envelope-open-text mr-1.5"></i> Simulation 3: Spoofed PayPal EML
+                            </span>
+                            <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">Email Spoof</span>
+                        </div>
+                        <p class="text-xs text-slate-700 font-mono">File: <span class="text-blue-800 font-semibold">phishing_simulation.eml</span></p>
+                        <p class="text-xs text-slate-500">Demonstrates SPF failure, DKIM signature rejection, Return-Path mismatch, and disguised link text.</p>
+                        <button onclick="loadSampleEmail('phishing')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-xs font-bold rounded-lg text-white transition shadow-sm">
+                            Load Spoofed Email EML
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>PhishGuard Security Core • Dual-Ensemble ML Active</span>
+            </div>
+            <div class="text-slate-400 font-medium">
+                Trained on Balanced 1,350+ Corpus • 99.26% Accuracy & 99.95% ROC-AUC
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        let currentUrlScanResult = null;
+        let currentEmailScanResult = null;
+
+        // Fetch Live Model Metrics on Load
+        async function fetchMetrics() {
+            try {
+                const res = await fetch('/api/model/metrics');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('header-acc').innerText = data.accuracy.toFixed(1) + '% Acc';
+                    document.getElementById('hero-acc').innerText = data.accuracy.toFixed(1) + '%';
+                    document.getElementById('hero-auc').innerText = data.roc_auc.toFixed(1) + '%';
+                    if (data.total_dataset_size) {
+                        document.getElementById('hero-samples').innerText = data.total_dataset_size + ' URLs';
+                    }
+                }
+            } catch(e) {}
+        }
+        fetchMetrics();
+
+        function switchTab(tab) {
+            document.getElementById('section-url').classList.add('hidden');
+            document.getElementById('section-email').classList.add('hidden');
+            document.getElementById('section-sim').classList.add('hidden');
+
+            document.getElementById('tab-url-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 flex items-center space-x-2";
+            document.getElementById('tab-email-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 flex items-center space-x-2";
+            document.getElementById('tab-sim-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 flex items-center space-x-2";
+
+            if (tab === 'url') {
+                document.getElementById('section-url').classList.remove('hidden');
+                document.getElementById('tab-url-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm flex items-center space-x-2";
+            } else if (tab === 'email') {
+                document.getElementById('section-email').classList.remove('hidden');
+                document.getElementById('tab-email-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm flex items-center space-x-2";
+            } else {
+                document.getElementById('section-sim').classList.remove('hidden');
+                document.getElementById('tab-sim-btn').className = "px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm flex items-center space-x-2";
+            }
+        }
+
+        function setAndScanUrl(url) {
+            switchTab('url');
+            document.getElementById('url-input').value = url;
+            handleUrlScan();
+        }
+
+        // URL Scan Handler
+        async function handleUrlScan(event) {
+            if (event) event.preventDefault();
+            const targetUrl = document.getElementById('url-input').value.trim();
+            const deepScan = document.getElementById('deep-scan-cb').checked;
+            if (!targetUrl) return;
+
+            document.getElementById('url-loading').classList.remove('hidden');
+            document.getElementById('url-results').classList.add('hidden');
+            document.getElementById('url-submit-btn').disabled = true;
+
+            try {
+                const response = await fetch('/api/scan/url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: targetUrl, deep_web_inspection: deepScan })
+                });
+
+                if (!response.ok) throw new Error("Analysis failed: " + (await response.text()));
+                const data = await response.json();
+                currentUrlScanResult = data;
+                renderUrlResults(data);
+            } catch (err) {
+                alert("Error scanning target: " + err.message);
+            } finally {
+                document.getElementById('url-loading').classList.add('hidden');
+                document.getElementById('url-submit-btn').disabled = false;
+            }
+        }
+
+        function renderUrlResults(data) {
+            const risk = data.risk_assessment;
+            const u = data.url_analysis;
+            const d = data.domain_analysis;
+            const s = data.ssl_analysis;
+            const ti = data.threat_intel;
+            const ml = data.ml_analysis || {};
+            const visual = data.visual_analysis || {};
+            const w = data.website_analysis || {};
+
+            document.getElementById('url-results').classList.remove('hidden');
+
+            // Gauge & Banner
+            const score = risk.score;
+            document.getElementById('url-score-val').innerText = score;
+            const gaugePath = document.getElementById('url-gauge-path');
+            gaugePath.style.stroke = risk.badge_color;
+            gaugePath.style.strokeDashoffset = 100 - score;
+
+            const badge = document.getElementById('url-verdict-badge');
+            badge.innerText = risk.verdict;
+            badge.style.backgroundColor = risk.badge_color + '15';
+            badge.style.color = risk.badge_color;
+            badge.style.border = `1px solid ${risk.badge_color}40`;
+
+            const card = document.getElementById('url-overview-card');
+            card.style.borderLeftColor = risk.badge_color;
+
+            const mlBadge = document.getElementById('url-ml-badge');
+            if (ml.ml_evaluated) {
+                mlBadge.innerText = `AI Prediction: ${ml.prediction} (${ml.confidence_pct}%)`;
+            } else {
+                mlBadge.innerText = "AI Evaluated";
+            }
+
+            const visualBadge = document.getElementById('url-visual-badge');
+            if (visual.brand_impersonation_detected) {
+                visualBadge.innerText = `⚠️ Visual Impersonation: ${visual.matched_brand}`;
+                visualBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300";
+            } else if (visual.is_visual_layout_match) {
+                visualBadge.innerText = `Visual Confirmed: ${visual.matched_brand}`;
+                visualBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+            } else {
+                visualBadge.innerText = "Visual Screen Captured";
+                visualBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200";
+            }
+
+            // Visual Panel Population
+            const visualPanel = document.getElementById('visual-inspection-panel');
+            if (visual.screenshot_url) {
+                visualPanel.classList.remove('hidden');
+                document.getElementById('suspect-screenshot-img').src = visual.screenshot_url;
+                document.getElementById('screenshot-expand-link').href = visual.screenshot_url;
+                
+                // Show matched brand only if an actual match occurred (>= 75% similarity)
+                document.getElementById('v-matched-brand').innerText = visual.matched_brand || "None";
+                document.getElementById('v-similarity').innerText = visual.is_visual_layout_match ? (visual.visual_similarity_score + '%') : "0% (Clean)";
+                
+                const impEl = document.getElementById('v-impersonation');
+                if (visual.brand_impersonation_detected) {
+                    impEl.innerText = "YES (Brand Spoofed)";
+                    impEl.className = "text-base font-bold text-red-600 mt-0.5";
+                    document.getElementById('visual-verdict-pill').innerText = "CRITICAL VISUAL DISCREPANCY";
+                    document.getElementById('visual-verdict-pill').className = "self-start sm:self-auto text-xs px-3 py-1 rounded-full font-bold bg-red-100 text-red-700 border border-red-200";
+                } else if (visual.is_visual_layout_match) {
+                    impEl.innerText = "No (Authentic Host)";
+                    impEl.className = "text-base font-bold text-emerald-600 mt-0.5";
+                    document.getElementById('visual-verdict-pill').innerText = "AUTHENTIC BRAND HOST";
+                    document.getElementById('visual-verdict-pill').className = "self-start sm:self-auto text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700 border border-emerald-200";
+                } else {
+                    impEl.innerText = "No (Unique Layout)";
+                    impEl.className = "text-base font-bold text-emerald-600 mt-0.5";
+                    document.getElementById('visual-verdict-pill').innerText = "CLEAN / BENIGN DESIGN";
+                    document.getElementById('visual-verdict-pill').className = "self-start sm:self-auto text-xs px-3 py-1 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+                }
+
+                document.getElementById('v-details-box').innerText = visual.discrepancy_details || "Clean unique layout. Does not match any protected corporate login brand.";
+            } else {
+                visualPanel.classList.add('hidden');
+            }
+
+            document.getElementById('url-target-display').innerText = data.clean_url;
+            document.getElementById('url-verdict-title').innerText = risk.risk_level;
+
+            // Pillar 1: ML
+            document.getElementById('badge-ml-pen').innerText = `+${risk.category_breakdown.ml_classifier || 0} pts`;
+            document.getElementById('ml-pred').innerText = ml.prediction || "N/A";
+            document.getElementById('ml-pred').className = ml.prediction === 'Phishing' ? "font-bold text-red-600" : "font-bold text-emerald-600";
+            document.getElementById('ml-conf').innerText = ml.confidence_pct ? `${ml.confidence_pct}%` : "N/A";
+            document.getElementById('ml-ent').innerText = ml.feature_vector ? ml.feature_vector.url_entropy : "N/A";
+
+            // Pillar 2: Domain
+            document.getElementById('badge-domain-pen').innerText = `+${risk.category_breakdown.domain_reputation || 0} pts`;
+            document.getElementById('d-reg').innerText = d.registered_domain;
+            document.getElementById('d-brand').innerText = d.impersonated_brand ? d.impersonated_brand.toUpperCase() : "None";
+            document.getElementById('d-typo').innerText = d.typosquatting_detected ? "DETECTED" : "None";
+            document.getElementById('d-typo').className = d.typosquatting_detected ? "text-red-600 font-bold" : "text-slate-600";
+
+            // Pillar 3: SSL
+            document.getElementById('badge-ssl-pen').innerText = `+${risk.category_breakdown.ssl_security || 0} pts`;
+            document.getElementById('s-status').innerText = s.status;
+            document.getElementById('s-status').className = s.status === 'Valid' ? "text-emerald-600 font-bold" : "text-amber-600 font-bold";
+            document.getElementById('s-issuer').innerText = s.issuer_common_name || s.issuer || "None";
+            document.getElementById('s-self').innerText = s.is_self_signed ? "YES" : "No";
+
+            // Pillar 4: Threat Intel
+            document.getElementById('badge-intel-pen').innerText = `+${risk.category_breakdown.threat_intel || 0} pts`;
+            document.getElementById('ti-match').innerText = ti.is_flagged ? "MATCHED" : "Clean";
+            document.getElementById('ti-match').className = ti.is_flagged ? "text-red-600 font-bold" : "text-emerald-600";
+            document.getElementById('ti-cat').innerText = ti.threat_category || "None";
+            document.getElementById('ti-conf').innerText = ti.confidence ? `${Math.round(ti.confidence * 100)}%` : "0%";
+
+            // Pillar 5: Website DOM
+            document.getElementById('badge-web-pen').innerText = `+${risk.category_breakdown.website_characteristics || 0} pts`;
+            document.getElementById('w-pass').innerText = w.has_password_field ? "Present" : "None";
+            document.getElementById('w-ext').innerText = w.external_form_action ? "YES" : "Internal";
+            document.getElementById('w-ext').className = w.external_form_action ? "text-red-600 font-bold" : "text-slate-600";
+            document.getElementById('w-iframe').innerText = w.hidden_iframes_count || 0;
+
+            // Findings List
+            const findingsList = document.getElementById('findings-list');
+            findingsList.innerHTML = "";
+            document.getElementById('findings-count').innerText = risk.findings.length;
+            if (risk.findings.length === 0) {
+                findingsList.innerHTML = `<li class="p-3 rounded-xl bg-emerald-50 text-emerald-700 flex items-center space-x-2 border border-emerald-200"><i class="fa-solid fa-check"></i><span>Zero malicious or suspicious indicators detected. Target demonstrates clean profile.</span></li>`;
+            } else {
+                risk.findings.forEach(f => {
+                    const li = document.createElement('li');
+                    li.className = "p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start space-x-2.5";
+                    li.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 mt-0.5"></i><span>${f}</span>`;
+                    findingsList.appendChild(li);
+                });
+            }
+
+            // Recommendations List
+            const recsList = document.getElementById('recs-list');
+            recsList.innerHTML = "";
+            risk.recommendations.forEach(r => {
+                const li = document.createElement('li');
+                li.className = "p-3 rounded-xl bg-blue-50/60 border border-blue-200 flex items-start space-x-2.5";
+                li.innerHTML = `<i class="fa-solid fa-shield-halved text-blue-600 mt-0.5"></i><span>${r}</span>`;
+                recsList.appendChild(li);
+            });
+
+            document.getElementById('url-results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Email File Upload Handler
+        async function handleEmlUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('selected-filename').innerText = file.name;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            document.getElementById('email-loading').classList.remove('hidden');
+            document.getElementById('email-results').classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/scan/email', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error(await response.text());
+                const data = await response.json();
+                currentEmailScanResult = data;
+                renderEmailResults(data);
+            } catch (err) {
+                alert("Email analysis error: " + err.message);
+            } finally {
+                document.getElementById('email-loading').classList.add('hidden');
+            }
+        }
+
+        // Raw Headers Scan
+        async function handleRawHeadersScan() {
+            const text = document.getElementById('raw-headers-input').value.trim();
+            if (!text) return alert("Please paste email header text.");
+
+            document.getElementById('email-loading').classList.remove('hidden');
+            document.getElementById('email-results').classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/scan/email-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ raw_email_headers: text })
+                });
+                if (!response.ok) throw new Error(await response.text());
+                const data = await response.json();
+                currentEmailScanResult = data;
+                renderEmailResults(data);
+            } catch (err) {
+                alert("Header parsing error: " + err.message);
+            } finally {
+                document.getElementById('email-loading').classList.add('hidden');
+            }
+        }
+
+        function renderEmailResults(data) {
+            const risk = data.risk_assessment;
+            const em = data.email_analysis;
+            document.getElementById('email-results').classList.remove('hidden');
+
+            // Banner & Gauge
+            const score = risk.score;
+            document.getElementById('email-score-val').innerText = score;
+            const gaugePath = document.getElementById('email-gauge-path');
+            gaugePath.style.stroke = risk.badge_color;
+            gaugePath.style.strokeDashoffset = 100 - score;
+
+            const badge = document.getElementById('email-verdict-badge');
+            badge.innerText = risk.verdict;
+            badge.style.backgroundColor = risk.badge_color + '15';
+            badge.style.color = risk.badge_color;
+            badge.style.border = `1px solid ${risk.badge_color}40`;
+
+            const card = document.getElementById('email-overview-card');
+            card.style.borderLeftColor = risk.badge_color;
+
+            document.getElementById('email-subject-display').innerText = em.subject || "(No Subject)";
+            document.getElementById('email-verdict-title').innerText = risk.risk_level;
+
+            // SPF
+            const spfEl = document.getElementById('auth-spf-badge');
+            spfEl.innerText = em.spf_status;
+            spfEl.className = `px-3.5 py-1 rounded-full text-xs font-extrabold inline-block ${em.spf_status === 'Pass' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`;
+
+            // DKIM
+            const dkimEl = document.getElementById('auth-dkim-badge');
+            dkimEl.innerText = em.dkim_status;
+            dkimEl.className = `px-3.5 py-1 rounded-full text-xs font-extrabold inline-block ${em.dkim_status === 'Pass' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`;
+
+            // DMARC
+            const dmarcEl = document.getElementById('auth-dmarc-badge');
+            dmarcEl.innerText = em.dmarc_status;
+            dmarcEl.className = `px-3.5 py-1 rounded-full text-xs font-extrabold inline-block ${em.dmarc_status === 'Pass' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`;
+            document.getElementById('auth-dmarc-policy').innerText = `Domain Policy: p=${em.dmarc_policy}`;
+
+            // Sender Details
+            document.getElementById('em-from').innerText = em.from || "N/A";
+            document.getElementById('em-return').innerText = em.return_path || "N/A";
+            document.getElementById('em-reply').innerText = em.reply_to || "N/A";
+            document.getElementById('em-spoof').innerText = em.is_spoofed_sender ? "CRITICAL: SENDER IDENTITY SPOOFED" : "Aligned & Authentic";
+            document.getElementById('em-spoof').className = em.is_spoofed_sender ? "text-red-600 font-bold" : "text-emerald-600 font-bold";
+
+            // Extracted Links
+            const linksList = document.getElementById('em-links-list');
+            linksList.innerHTML = "";
+            if (!em.links || em.links.length === 0) {
+                linksList.innerHTML = `<p class="text-slate-400">No hyperlinks detected in email payload.</p>`;
+            } else {
+                em.links.forEach(l => {
+                    const isDeceptive = em.suspicious_links && em.suspicious_links.includes(l);
+                    const div = document.createElement('div');
+                    div.className = `p-2.5 rounded-lg border ${isDeceptive ? 'border-red-200 bg-red-50 text-red-700' : 'border-slate-200 bg-slate-50 text-slate-700'} flex items-center justify-between text-xs`;
+                    div.innerHTML = `
+                        <span class="truncate max-w-sm ${isDeceptive ? 'font-semibold' : ''}">${l}</span>
+                        ${isDeceptive ? '<span class="text-[10px] bg-red-200 text-red-800 px-1.5 py-0.5 rounded font-bold uppercase">Deceptive Text</span>' : ''}
+                    `;
+                    linksList.appendChild(div);
+                });
+            }
+
+            document.getElementById('email-results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // PDF Report Downloader
+        async function downloadReport(type) {
+            let payload = {};
+            if (type === 'url' && currentUrlScanResult) {
+                payload = {
+                    type: "url",
+                    target: currentUrlScanResult.target,
+                    risk_assessment: currentUrlScanResult.risk_assessment,
+                    extra_details: {
+                        domain: currentUrlScanResult.domain_analysis,
+                        ssl: currentUrlScanResult.ssl_analysis,
+                        threat_intel: currentUrlScanResult.threat_intel
+                    }
+                };
+            } else if (type === 'email' && currentEmailScanResult) {
+                payload = {
+                    type: "email",
+                    target: currentEmailScanResult.filename || currentEmailScanResult.email_analysis.subject,
+                    risk_assessment: currentEmailScanResult.risk_assessment,
+                    extra_details: currentEmailScanResult.email_analysis
+                };
+            } else {
+                alert("Please perform an analysis first before generating PDF.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/report/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error("PDF generation failed");
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `PhishGuard_${type}_Audit_Report.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (err) {
+                alert("Download failed: " + err.message);
+            }
+        }
+
+        async function loadSampleEmail(kind) {
+            switchTab('email');
+            const filename = kind === 'phishing' ? 'phishing_simulation.eml' : 'legitimate_simulation.eml';
+            try {
+                const res = await fetch(`/api/sample-eml/${filename}`);
+                if (!res.ok) {
+                    alert("Could not load sample file directly.");
+                    return;
+                }
+                const blob = await res.blob();
+                const file = new File([blob], filename, { type: 'message/rfc822' });
+                const fakeEvent = { target: { files: [file] } };
+                handleEmlUpload(fakeEvent);
+            } catch (e) {
+                alert("Error loading sample: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>

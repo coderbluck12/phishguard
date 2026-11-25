@@ -1,0 +1,27 @@
+From: "Google Security Alert" <no-reply@accounts.google.com>
+To: employee@company.org
+Subject: Security alert: New sign-in on Windows
+Date: Sat, 21 Nov 2026 10:00:00 +0000
+Message-ID: <CAFz=example12345@mail.gmail.com>
+Return-Path: <no-reply@accounts.google.com>
+Reply-To: <no-reply@accounts.google.com>
+Received: from mail-ed1-f65.google.com (mail-ed1-f65.google.com [209.85.208.65])
+    by mx.company.org with ESMTPS id xyz98765
+    for <employee@company.org>; Sat, 21 Nov 2026 10:00:02 +0000
+Received-SPF: pass (google.com: domain of accounts.google.com designates 209.85.208.65 as permitted sender)
+Authentication-Results: mx.company.org;
+    spf=pass smtp.mailfrom=accounts.google.com;
+    dkim=pass header.d=accounts.google.com;
+    dmarc=pass (p=reject) header.from=accounts.google.com
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+
+<!DOCTYPE html>
+<html>
+<body>
+<h3>New device sign-in</h3>
+<p>Your Google Account was just accessed from a new Windows workstation.</p>
+<p>If this was you, you don't need to do anything. If this wasn't you, review your account activity:</p>
+<p><a href="https://myaccount.google.com/notifications">https://myaccount.google.com/notifications</a></p>
+</body>
+</html>
